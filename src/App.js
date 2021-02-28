@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 const LambdaDemo = () => {
@@ -10,42 +9,49 @@ const LambdaDemo = () => {
 		cookCounty: 'Unavailable',
 	});
 
-	const fatch = (api) => {
-		set({ ...state, loading: true });
-		fetch('/.netlify/functions/' + api)
-			.then((response) => response.json())
-			.then((json) => {
-				set({ ...state, loading: false });
-				set({ ...state, [api]: json });
-			});
-	};
-
 	useEffect(() => {
-		// fatch('walgreens');
-		fatch('cookCounty');
-	}, []);
+		const fatch = (api) => {
+			set({ ...state, loading: true });
+			fetch('/.netlify/functions/' + api)
+				.then((response) => response.json())
+				.then((json) => {
+					set({ ...state, loading: false });
+					set({ ...state, [api]: json });
+				});
+		};
 
-	console.log('state > ', state);
+		const options = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json; charset=utf-8',
+			},
+			body: JSON.stringify({
+				pageToScreenshot: 'https://bitsofco.de',
+			}),
+		};
+		fatch('walgreens');
+		// fatch('cookCounty');
+		const fitch = async () => {
+			return await fetch('/.netlify/functions/screenshot', options);
+		};
+		console.log('fitch > ', fitch());
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+	// console.log('state > ', state);
 	return (
-		<>
+		<div
+			id="grid"
+			style={{ display: 'grid', placeContent: 'center', height: '100vh' }}
+		>
+			<div>Cook County: {state.cookCounty}</div>
 			<div>Walgreens: {state.walgreens}</div>
 			<br />
-		</>
+		</div>
 	);
 };
 
 const App = () => {
-	return (
-		<div className="App">
-			<header className="App-header">
-				<img src={logo} className="App-logo" alt="logo" />
-				<p>
-					Edit <code>src/App.js</code> and save to reload.
-				</p>
-				<LambdaDemo />
-			</header>
-		</div>
-	);
+	return <LambdaDemo />;
 };
 
 export default App;
